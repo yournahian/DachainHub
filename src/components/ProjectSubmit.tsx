@@ -128,7 +128,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       name: name || 'DAC Swap Engine',
       tagline: tagline || 'Next-gen atomic swapper for quantum-resistant dApps.',
       description: description || '### Feature Set\n- Multi-hop liquidity router\n- Zero-knowledge fee claims\n\nSubmit this form to populate details.',
-      category: (category === 'Other' && customCategory.trim() ? customCategory.trim() : category) as Project['category'],
+      category: (category === 'Others' && customCategory.trim() ? customCategory.trim() : category) as Project['category'],
       status,
       logoUrl: logoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${name || 'DAC'}`,
       bannerColor: bannerGradients[bannerColorIndex],
@@ -159,7 +159,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !tagline.trim() || !description.trim()) return;
-    if (category === 'Other' && !customCategory.trim()) return;
+    if (category === 'Others' && !customCategory.trim()) return;
 
     onSubmit(previewProject);
     setSubmissionSuccess(true);
@@ -223,7 +223,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                   value={category}
                   onChange={(e) => {
                     setCategory(e.target.value as Project['category']);
-                    if (e.target.value !== 'Other') setCustomCategory('');
+                    if (e.target.value !== 'Others') setCustomCategory('');
                   }}
                 >
                   <option value="DeFi">DeFi</option>
@@ -233,9 +233,9 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                   <option value="Tooling">Tooling</option>
                   <option value="Social">Social</option>
                   <option value="RWA">RWA</option>
-                  <option value="Other">Other</option>
+                  <option value="Others">Others</option>
                 </select>
-                {category === 'Other' && (
+                {category === 'Others' && (
                   <input
                     type="text"
                     className="form-input"

@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
           <img 
             src={theme === 'dark' ? '/brand/Lookup-DarkMode.svg' : '/brand/Lookup-LightMode.svg'} 
             alt="DACHAIN HUB" 
-            style={{ height: '48px', width: 'auto', display: 'block' }}
+            style={{ height: '60px', width: 'auto', display: 'block' }}
           />
         </div>
 

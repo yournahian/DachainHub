@@ -1,6 +1,9 @@
 import { Project, Comment, Builder, SystemStats } from '../types';
 import { INITIAL_PROJECTS, INITIAL_COMMENTS } from '../data/initialProjects';
-import { supabase, isSupabaseActive } from './supabaseClient';
+import { getSupabaseClient, isSupabaseActive } from './supabaseClient';
+
+// Helper alias — only call inside isSupabaseActive() blocks
+const sb = () => getSupabaseClient()!;
 
 // Key Constants
 const PROJECTS_KEY = 'dac_projects';
@@ -128,7 +131,7 @@ export const seedSupabaseDefaults = async (): Promise<void> => {
   if (!isSupabaseActive()) return;
 
   try {
-    const { count, error } = await supabase
+    const { count, error } = await sb()
       .from('projects')
       .select('*', { count: 'exact', head: true });
 
@@ -140,7 +143,7 @@ export const seedSupabaseDefaults = async (): Promise<void> => {
     if (count === 0) {
       console.log('[Supabase] Seeding default builders...');
       const defaultBuilders = getRegisteredBuilders().map(({ passphrase, ...b }) => b);
-      const { error: builderErr } = await supabase
+      const { error: builderErr } = await sb()
         .from('builders')
         .upsert(defaultBuilders);
       if (builderErr) {
@@ -148,7 +151,7 @@ export const seedSupabaseDefaults = async (): Promise<void> => {
       }
 
       console.log('[Supabase] Seeding default projects...');
-      const { error: projectErr } = await supabase
+      const { error: projectErr } = await sb()
         .from('projects')
         .insert(INITIAL_PROJECTS);
       if (projectErr) {
@@ -156,7 +159,7 @@ export const seedSupabaseDefaults = async (): Promise<void> => {
       }
 
       console.log('[Supabase] Seeding default comments...');
-      const { error: commentErr } = await supabase
+      const { error: commentErr } = await sb()
         .from('comments')
         .insert(INITIAL_COMMENTS);
       if (commentErr) {
@@ -172,8 +175,8 @@ export const seedSupabaseDefaults = async (): Promise<void> => {
 export const resetStorageToDefaults = async (): Promise<void> => {
   if (isSupabaseActive()) {
     console.log('[Supabase] Clearing database tables...');
-    await supabase.from('comments').delete().neq('id', '');
-    await supabase.from('projects').delete().neq('id', '');
+    await sb().from('comments').delete().neq('id', '');
+    await sb().from('projects').delete().neq('id', '');
     await seedSupabaseDefaults();
     
     localStorage.removeItem(UPVOTED_KEY);
@@ -192,7 +195,7 @@ export const resetStorageToDefaults = async (): Promise<void> => {
 export const getProjects = async (): Promise<Project[]> => {
   if (isSupabaseActive()) {
     await seedSupabaseDefaults();
-    const { data, error } = await supabase
+    const { data, error } = await sb()
       .from('projects')
       .select('*')
       .order('createdAt', { ascending: false });
@@ -246,7 +249,7 @@ export const getProjects = async (): Promise<Project[]> => {
 
 export const saveProjects = async (projects: Project[]): Promise<void> => {
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('projects')
       .upsert(projects);
     if (error) {
@@ -270,7 +273,7 @@ export const addProject = async (
   };
 
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('projects')
       .insert(newProject);
     if (error) {
@@ -287,7 +290,7 @@ export const addProject = async (
 
 export const updateProject = async (project: Project): Promise<void> => {
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('projects')
       .update(project)
       .eq('id', project.id);
@@ -307,13 +310,13 @@ export const updateProject = async (project: Project): Promise<void> => {
 
 export const incrementViews = async (projectId: string): Promise<void> => {
   if (isSupabaseActive()) {
-    const { data, error: fetchError } = await supabase
+    const { data, error: fetchError } = await sb()
       .from('projects')
       .select('views')
       .eq('id', projectId)
       .single();
     if (!fetchError && data) {
-      const { error } = await supabase
+      const { error } = await sb()
         .from('projects')
         .update({ views: (data.views || 0) + 1 })
         .eq('id', projectId);
@@ -335,8 +338,8 @@ export const incrementViews = async (projectId: string): Promise<void> => {
 export const deleteProject = async (projectId: string): Promise<void> => {
   if (isSupabaseActive()) {
     // Delete project row (cascade will clean up comments if configured, but delete explicitly to cover all bases)
-    await supabase.from('comments').delete().eq('projectId', projectId);
-    const { error } = await supabase.from('projects').delete().eq('id', projectId);
+    await sb().from('comments').delete().eq('projectId', projectId);
+    const { error } = await sb().from('projects').delete().eq('id', projectId);
     if (error) {
       console.error('[Supabase] Error deleting project:', error);
     }
@@ -355,7 +358,7 @@ export const deleteProject = async (projectId: string): Promise<void> => {
 // Comments API
 export const getComments = async (): Promise<Comment[]> => {
   if (isSupabaseActive()) {
-    const { data, error } = await supabase
+    const { data, error } = await sb()
       .from('comments')
       .select('*')
       .order('timestamp', { ascending: false });
@@ -371,7 +374,7 @@ export const getComments = async (): Promise<Comment[]> => {
 
 export const getCommentsForProject = async (projectId: string): Promise<Comment[]> => {
   if (isSupabaseActive()) {
-    const { data, error } = await supabase
+    const { data, error } = await sb()
       .from('comments')
       .select('*')
       .eq('projectId', projectId)
@@ -388,7 +391,7 @@ export const getCommentsForProject = async (projectId: string): Promise<Comment[
 
 export const saveComments = async (comments: Comment[]): Promise<void> => {
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('comments')
       .upsert(comments);
     if (error) {
@@ -415,7 +418,7 @@ export const addComment = async (
   };
 
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('comments')
       .insert(newComment);
     if (error) {
@@ -432,7 +435,7 @@ export const addComment = async (
 
 export const deleteComment = async (commentId: string): Promise<void> => {
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('comments')
       .delete()
       .eq('id', commentId);
@@ -468,7 +471,7 @@ export const toggleUpvote = async (
   }
 
   if (isSupabaseActive()) {
-    const { data, error: fetchError } = await supabase
+    const { data, error: fetchError } = await sb()
       .from('projects')
       .select('upvotes')
       .eq('id', projectId)
@@ -479,7 +482,7 @@ export const toggleUpvote = async (
     }
 
     const newUpvotes = Math.max(0, data.upvotes + (isUpvoted ? -1 : 1));
-    const { error } = await supabase
+    const { error } = await sb()
       .from('projects')
       .update({ upvotes: newUpvotes })
       .eq('id', projectId);
@@ -509,7 +512,7 @@ export const toggleUpvote = async (
 // Builder Profiles Persistent API
 export const getBuilderById = async (builderId: string): Promise<Builder | null> => {
   if (isSupabaseActive()) {
-    const { data, error } = await supabase
+    const { data, error } = await sb()
       .from('builders')
       .select('*')
       .eq('id', builderId)
@@ -527,7 +530,7 @@ export const getBuilderById = async (builderId: string): Promise<Builder | null>
 
 export const getAllBuilders = async (): Promise<Builder[]> => {
   if (isSupabaseActive()) {
-    const { data, error } = await supabase
+    const { data, error } = await sb()
       .from('builders')
       .select('*')
       .order('name', { ascending: true });
@@ -544,7 +547,7 @@ export const getAllBuilders = async (): Promise<Builder[]> => {
 
 export const saveBuilderProfile = async (builder: Builder): Promise<void> => {
   if (isSupabaseActive()) {
-    const { error } = await supabase
+    const { error } = await sb()
       .from('builders')
       .upsert(builder);
     if (error) {
@@ -647,7 +650,8 @@ export const isAdminLoggedIn = (): boolean => {
 };
 
 export const loginAdmin = (passphrase: string): boolean => {
-  if (passphrase === 'admin123' || passphrase === 'admin') {
+  const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+  if (passphrase === adminPassword) {
     localStorage.setItem(ADMIN_KEY, 'true');
     return true;
   }
@@ -662,7 +666,7 @@ export const logoutAdmin = (): void => {
 // Statistics API
 export const getSystemStats = async (): Promise<SystemStats> => {
   if (isSupabaseActive()) {
-    const { data: projects, error } = await supabase
+    const { data: projects, error } = await sb()
       .from('projects')
       .select('upvotes, builderId');
     
