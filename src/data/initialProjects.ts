@@ -243,8 +243,119 @@ Tactical DAO Hub is the official community coordination and governance portal. I
     builderId: 'dev_5',
     isFeatured: false,
     isApproved: true
+  },
+  {
+    id: '7',
+    name: 'Q-Chat Secure',
+    tagline: 'Zero-knowledge, quantum-resistant end-to-end encrypted messaging protocol.',
+    description: `### Overview
+Q-Chat is a decentralized, zero-knowledge messaging application built on the DAC Quantum Blockchain. It secures communications using post-quantum cryptographic algorithms (Kyber/Dilithium) to ensure that messages intercepted today cannot be decrypted by quantum computers tomorrow.
+
+### Key Capabilities
+- **Perfect Forward Secrecy**: Ephemeral key exchanges secured with quantum-resistant key encapsulation mechanisms (KEM).
+- **Metadata Protection**: Multi-hop routing through DAC node relay matrices hides sender and receiver identities.
+- **Self-Destructing Payload**: Option to write messages that auto-delete after supervisor node confirmation.`,
+    category: 'Social',
+    status: 'Beta',
+    logoUrl: 'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&w=120&h=120&q=80',
+    bannerColor: 'linear-gradient(135deg, #11120c 0%, #aa3011 100%)',
+    website: 'https://qchat.example.com',
+    github: 'https://github.com/dacblockchain/q-chat',
+    twitter: 'https://x.com/qchat_secure',
+    docs: 'https://docs.qchat.example.com',
+    team: ['Elena Rostova', 'Dr. Marcus Chen'],
+    techStack: ['Rust', 'WebAssembly', 'React', 'Kyber-KEM'],
+    tags: ['ZKP', 'Messaging', 'Privacy', 'Post-Quantum'],
+    coverImageUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=600&q=80',
+    securityDetails: {
+      auditStatus: 'Audit Completed',
+      auditorName: 'Trail of Bits',
+      securityLevel: 'High',
+      pqcSafe: true
+    },
+    views: 642,
+    githubStars: 98,
+    upvotes: 147,
+    createdAt: '2026-06-08T14:20:00Z',
+    builderId: 'dev_2',
+    isFeatured: false,
+    isApproved: true
+  },
+  {
+    id: '8',
+    name: 'Lattice Arena',
+    tagline: 'High-fidelity quantum-secure PvP card battles built on-chain.',
+    description: `### Overview
+Lattice Arena is a tactical collectible card game utilizing the DAC high-frequency transaction engine. Every deck state and match outcome is stored cryptographically, offering pure verifiable randomness and true card ownership.
+
+### Gameplay Mechanics
+- **Fair Play Engine**: Quantum-safe randomness generated via decentralized node beacons.
+- **True Asset Ownership**: Upgrade, merge, and trade your tactical cards on the open market.
+- **Sub-Second Battles**: Sub-second execution for fast-paced PvP matches without network lag.`,
+    category: 'GameFi',
+    status: 'Beta',
+    logoUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=120&h=120&q=80',
+    bannerColor: 'linear-gradient(135deg, #e25836 0%, #28426d 100%)',
+    website: 'https://latticearena.example.com',
+    github: 'https://github.com/dacblockchain/lattice-arena',
+    twitter: 'https://x.com/lattice_arena',
+    docs: 'https://docs.latticearena.example.com',
+    team: ['Renata Cruz'],
+    techStack: ['Unity', 'C#', 'Solidity', 'Next.js'],
+    tags: ['GameFi', 'NFTs', 'PvP', 'On-Chain-Gaming'],
+    coverImageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80',
+    securityDetails: {
+      auditStatus: 'Under Active Audit',
+      auditorName: 'Halborn',
+      securityLevel: 'Standard',
+      pqcSafe: true
+    },
+    views: 453,
+    githubStars: 37,
+    upvotes: 89,
+    createdAt: '2026-06-10T10:00:00Z',
+    builderId: 'dev_3',
+    isFeatured: false,
+    isApproved: true
+  },
+  {
+    id: '9',
+    name: 'Quantum Credit',
+    tagline: 'Lending protocol providing quantum-secure yield markets and credit lines.',
+    description: `### Overview
+Quantum Credit is an advanced decentralized lending protocol that enables builders and node operators to supply assets, earn post-quantum-safe interest, and borrow against crypto collaterals.
+
+### Protocol Features
+- **Quantum-Secured Loans**: Liquidation and collateral state managed under Dilithium signature constraints.
+- **Dynamic Yield Optimizer**: Automatically rebalances pools across DAC AMMs for maximum capital efficiency.
+- **Validator Lines**: Special discounted credit terms for active DAC node supervisors.`,
+    category: 'DeFi',
+    status: 'Concept',
+    logoUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=120&h=120&q=80',
+    bannerColor: 'linear-gradient(135deg, #aa3011 0%, #11120c 100%)',
+    website: 'https://qcredit.example.com',
+    github: 'https://github.com/dacblockchain/quantum-credit',
+    twitter: 'https://x.com/quantum_credit',
+    docs: 'https://docs.qcredit.example.com',
+    team: ['Vikram Patel', 'Alice Sterling'],
+    techStack: ['Solidity', 'Rust', 'Ethers.js'],
+    tags: ['Lending', 'Yield-Farming', 'DeFi', 'Credit-Market'],
+    coverImageUrl: 'https://images.unsplash.com/photo-1616077168079-7e09a677fb2c?auto=format&fit=crop&w=600&q=80',
+    securityDetails: {
+      auditStatus: 'Self Audited // Community Review',
+      securityLevel: 'Experimental',
+      pqcSafe: true
+    },
+    views: 298,
+    githubStars: 25,
+    upvotes: 54,
+    createdAt: '2026-06-12T11:00:00Z',
+    builderId: 'dev_4',
+    isFeatured: false,
+    isApproved: true
   }
 ];
+
 
 export const INITIAL_COMMENTS = [
   {

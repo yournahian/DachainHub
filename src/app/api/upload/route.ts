@@ -1,12 +1,12 @@
+import { put } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
 /**
  * POST /api/upload
- * Receives an image file via multipart/form-data,
- * saves it locally to public/uploads/, and returns the local URL.
+ * Uploads files to Vercel Blob, falling back to local files in development if token is missing,
+ * with a 4.5 MB file size limit check.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -17,31 +17,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    // Convert arrayBuffer to Buffer for Node.js fs writing
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Create the path for public/uploads
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    // Ensure directory exists
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    // Enforce 4.5 MB maximum file size limit (Vercel Blob Hobby plan limit)
+    const MAX_SIZE = 4.5 * 1024 * 1024; // 4.5 MB in bytes
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
+        { error: 'File size exceeds the 4.5 MB limit' },
+        { status: 400 }
+      );
     }
 
-    // Generate unique file name preserving extension
-    const ext = path.extname(file.name) || '.png';
-    const filename = `${crypto.randomUUID()}${ext}`;
-    const filePath = path.join(uploadsDir, filename);
+    // Fallback to local uploads if token is not configured (e.g., local development)
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.log('[Upload Fallback] BLOB_READ_WRITE_TOKEN is missing. Saving file locally...');
+      
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
 
-    // Write file to local disk
-    fs.writeFileSync(filePath, buffer);
+      const filename = `upload_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const publicDirectory = join(process.cwd(), 'public', 'uploads');
+      
+      // Ensure the directory exists
+      await mkdir(publicDirectory, { recursive: true });
+      
+      const filePath = join(publicDirectory, filename);
+      await writeFile(filePath, buffer);
+      
+      const fileUrl = `/uploads/${filename}`;
+      return NextResponse.json({ success: true, url: fileUrl });
+    }
 
-    // Return the local relative URL
-    const localUrl = `/uploads/${filename}`;
-    return NextResponse.json({ success: true, url: localUrl });
+    // Upload directly to Vercel Blob
+    const blob = await put(file.name, file, {
+      access: 'public',
+    });
+
+    return NextResponse.json({ success: true, url: blob.url });
   } catch (error) {
-    console.error('[Local Uploader] Upload failed:', error);
-    return NextResponse.json({ error: 'Failed to write file to local disk' }, { status: 500 });
+    console.error('[Uploader] Upload failed:', error);
+    return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
   }
 }

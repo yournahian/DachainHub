@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Lock, Layout, Star, Database, CheckCircle, RefreshCw, Download, Trash, Award, ExternalLink } from 'lucide-react';
 import { Project, Comment, SystemStats } from '../types';
 import { parseMarkdown } from '../utils/markdown';
-import { isAdminLoggedIn, loginAdmin, logoutAdmin, getProjects, saveProjects, getComments, saveComments, getSystemStats, resetStorageToDefaults, deleteProject } from '../utils/storage';
+import { isAdminLoggedIn, loginAdmin, logoutAdmin, getProjects, saveProjects, getComments, saveComments, getSystemStats, resetStorageToDefaults, deleteProject, deleteComment } from '../utils/storage';
 
 interface AdminDashboardProps {
   onRefreshProjectList: () => void;
@@ -35,19 +35,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   }, []);
 
-  const loadAdminData = () => {
-    setAllProjects(getProjects());
-    setAllComments(getComments());
-    onRefreshStats();
+  const loadAdminData = async () => {
+    try {
+      const projs = await getProjects();
+      setAllProjects(projs);
+      const comms = await getComments();
+      setAllComments(comms);
+      onRefreshStats();
+    } catch (err) {
+      console.error('Failed to load admin data:', err);
+    }
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = loginAdmin(passphrase);
     if (success) {
       setAuthorized(true);
       setLoginError(false);
-      loadAdminData();
+      await loadAdminData();
       onRefreshProjectList();
     } else {
       setLoginError(true);
@@ -61,49 +67,47 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onLogoutAdmin();
   };
 
-  const handleApproveProject = (projectId: string) => {
-    const projects = getProjects();
+  const handleApproveProject = async (projectId: string) => {
+    const projects = await getProjects();
     const index = projects.findIndex(p => p.id === projectId);
     if (index !== -1) {
       projects[index].isApproved = true;
-      saveProjects(projects);
-      loadAdminData();
+      await saveProjects(projects);
+      await loadAdminData();
       onRefreshProjectList();
     }
   };
 
-  const handleToggleFeatured = (projectId: string) => {
-    const projects = getProjects();
+  const handleToggleFeatured = async (projectId: string) => {
+    const projects = await getProjects();
     const index = projects.findIndex(p => p.id === projectId);
     if (index !== -1) {
       projects[index].isFeatured = !projects[index].isFeatured;
-      saveProjects(projects);
-      loadAdminData();
+      await saveProjects(projects);
+      await loadAdminData();
       onRefreshProjectList();
     }
   };
 
-  const handleDeleteProject = (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     if (window.confirm("ARE_YOU_SURE? PERMANENT_DELETION_OF_PROJECT_AND_COMMENTS.")) {
-      deleteProject(projectId);
-      loadAdminData();
+      await deleteProject(projectId);
+      await loadAdminData();
       onRefreshProjectList();
     }
   };
 
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     if (window.confirm("REMOVE_COMMENT_PERMANENTLY?")) {
-      const comments = getComments();
-      const updated = comments.filter(c => c.id !== commentId);
-      saveComments(updated);
-      loadAdminData();
+      await deleteComment(commentId);
+      await loadAdminData();
     }
   };
 
-  const handleResetData = () => {
+  const handleResetData = async () => {
     if (window.confirm("RESET_TO_DEFAULTS? THIS_ERASES_ALL_SUBMISSIONS_AND_REBUILDS_MOCK_DATA.")) {
-      resetStorageToDefaults();
-      loadAdminData();
+      await resetStorageToDefaults();
+      await loadAdminData();
       onRefreshProjectList();
     }
   };
@@ -311,7 +315,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         style={{ 
                                           width: '100%', 
                                           height: '100%', 
-                                          objectFit: 'cover', 
+                                          objectFit: 'contain', 
                                           transform: `scale(${(project.logoScale !== undefined ? project.logoScale : 100) / 100})` 
                                         }} 
                                         onError={(e) => {

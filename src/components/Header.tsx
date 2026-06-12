@@ -25,16 +25,12 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="header-wrapper">
       <div className="header-inner">
         {/* Brand/Logo */}
-        <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('explore')}>
-          {/* DAC Custom SVG Logo Icon */}
-          <svg className="brand-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#aa3011" />
-            <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#28426d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <div className="brand-text-wrapper">
-            <h1 className="brand-text">DAC_CHAIN</h1>
-            <div className="brand-badge">SHOWCASE</div>
-          </div>
+        <div className="brand" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => onNavigate('explore')}>
+          <img 
+            src={theme === 'dark' ? '/brand/Lookup-DarkMode.svg' : '/brand/Lookup-LightMode.svg'} 
+            alt="DACHAIN HUB" 
+            style={{ height: '48px', width: 'auto', display: 'block' }}
+          />
         </div>
 
         {/* Navigation Links */}
@@ -58,12 +54,10 @@ export const Header: React.FC<HeaderProps> = ({
             BUILDER_WORKSPACE
           </span>
           <span 
-            className={`nav-item ${currentView === 'admin' ? 'active' : ''}`}
-            onClick={() => onNavigate('admin')}
-            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+            className={`nav-item ${currentView === 'builders' ? 'active' : ''}`}
+            onClick={() => onNavigate('builders')}
           >
-            {isAdmin && <span style={{ color: 'var(--color-primary)' }}>●</span>}
-            ADMIN_TERMINAL
+            BUILDERS
           </span>
         </nav>
 

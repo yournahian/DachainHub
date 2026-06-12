@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut, Code, Trash, Edit, Plus, ExternalLink, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Project, Builder } from '../types';
-import { getProjects, deleteProject, updateProject } from '../utils/storage';
+import { getProjects, deleteProject, updateProject, saveBuilderProfile } from '../utils/storage';
 
 interface BuilderProfileProps {
   onNavigate: (view: string) => void;
@@ -173,7 +173,8 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
         const b = data.builder as Builder;
         setBuilder(b);
         syncBuilderToLocalStorage(b);
-        loadMyProjects(b.id);
+        await saveBuilderProfile(b);
+        await loadMyProjects(b.id);
         
         if (b.discordUsername) setDiscordInput(b.discordUsername);
         if (b.email) setEmailInput(b.email);
@@ -193,8 +194,8 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
     }
   };
 
-  const loadMyProjects = (builderId: string) => {
-    const all = getProjects();
+  const loadMyProjects = async (builderId: string) => {
+    const all = await getProjects();
     const filtered = all.filter(
       (p) =>
         p.builderId === builderId ||
@@ -244,6 +245,7 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
         const b = data.builder as Builder;
         setBuilder(b);
         syncBuilderToLocalStorage(b);
+        await saveBuilderProfile(b);
         setDiscordStep(false);
       }
     } catch {
@@ -284,7 +286,7 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
     setEditLogoScale(project.logoScale !== undefined ? project.logoScale : 100);
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProject) return;
 
@@ -309,18 +311,18 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
       },
     };
 
-    updateProject(updated);
+    await updateProject(updated);
     onRefreshProjectList();
-    if (builder) loadMyProjects(builder.id);
+    if (builder) await loadMyProjects(builder.id);
     setEditingProject(null);
   };
 
-  const handleDeleteClick = (projectId: string, e: React.MouseEvent) => {
+  const handleDeleteClick = async (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('ARE_YOU_SURE? THIS_RECORD_WILL_BE_ERASED_FROM_THE_LEDGER.')) {
-      deleteProject(projectId);
+      await deleteProject(projectId);
       onRefreshProjectList();
-      if (builder) loadMyProjects(builder.id);
+      if (builder) await loadMyProjects(builder.id);
     }
   };
 
@@ -388,7 +390,7 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
           <input
             type="text"
             className="form-input"
-            placeholder="e.g. sukanto01899"
+            placeholder="e.g. dac_builder"
             value={discordInput}
             onChange={(e) => setDiscordInput(e.target.value)}
           />
@@ -565,9 +567,55 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
             color: 'var(--text-muted)',
             lineHeight: '1.6',
             textAlign: 'center',
+            marginBottom: '20px'
           }}
         >
           🔒 You will be redirected to <strong>x.com</strong> to authorize. We never see your password. Only your public profile (name, handle, avatar) is read.
+        </div>
+
+        {/* Development Mode Bypass */}
+        <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '16px' }}>
+          <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textAlign: 'center' }}>
+            DEVELOPMENT_MODE_BYPASS
+          </span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ flexGrow: 1, fontSize: '11px', padding: '8px 12px', justifyContent: 'center' }}
+              onClick={async () => {
+                const mockRes = await fetch('/api/auth/mock-login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ builderId: 'dev_1' }),
+                });
+                const data = await mockRes.json();
+                if (data.builder) {
+                  await fetchSession();
+                }
+              }}
+            >
+              MOCK_LOGIN (ALISTAIR)
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ flexGrow: 1, fontSize: '11px', padding: '8px 12px', justifyContent: 'center' }}
+              onClick={async () => {
+                const mockRes = await fetch('/api/auth/mock-login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ builderId: 'dev_2' }),
+                });
+                const data = await mockRes.json();
+                if (data.builder) {
+                  await fetchSession();
+                }
+              }}
+            >
+              MOCK_LOGIN (ELENA)
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -701,19 +749,19 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
 
           <div className="form-group">
             <label className="form-label">WEBSITE GATEWAY</label>
-            <input type="url" className="form-input" value={editWebsite} onChange={(e) => setEditWebsite(e.target.value)} />
+            <input type="text" className="form-input" value={editWebsite} onChange={(e) => setEditWebsite(e.target.value)} />
           </div>
 
           <div className="form-row-double">
             <div className="form-group">
               <label className="form-label">GITHUB CODEBASE</label>
-              <input type="url" className="form-input" value={editGithub} onChange={(e) => setEditGithub(e.target.value)} />
+              <input type="text" className="form-input" value={editGithub} onChange={(e) => setEditGithub(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-label">PROJECT_LOGO (ICON)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
-                  type="url"
+                  type="text"
                   className="form-input"
                   placeholder="e.g. /uploads/logo.png or external URL"
                   value={editLogoUrl}
@@ -745,7 +793,7 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
             <label className="form-label">PROJECT_THUMBNAIL (COVER IMAGE)</label>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
-                type="url"
+                type="text"
                 className="form-input"
                 value={editCoverImageUrl}
                 onChange={(e) => setEditCoverImageUrl(e.target.value)}

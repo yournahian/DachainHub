@@ -15,6 +15,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
   const [tagline, setTagline] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<Project['category']>('DeFi');
+  const [customCategory, setCustomCategory] = useState('');
   const [status, setStatus] = useState<Project['status']>('Testnet');
   const [logoUrl, setLogoUrl] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
@@ -127,7 +128,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       name: name || 'DAC Swap Engine',
       tagline: tagline || 'Next-gen atomic swapper for quantum-resistant dApps.',
       description: description || '### Feature Set\n- Multi-hop liquidity router\n- Zero-knowledge fee claims\n\nSubmit this form to populate details.',
-      category,
+      category: (category === 'Other' && customCategory.trim() ? customCategory.trim() : category) as Project['category'],
       status,
       logoUrl: logoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${name || 'DAC'}`,
       bannerColor: bannerGradients[bannerColorIndex],
@@ -153,11 +154,12 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       coverImagePositionY,
       logoScale
     };
-  }, [name, tagline, description, category, status, logoUrl, coverImageUrl, bannerColorIndex, website, github, twitter, docs, teamMembers, tokenTicker, contractAddress, techStack, tags, auditStatus, auditorName, securityLevel, pqcSafe, builderId, coverImagePositionY, logoScale]);
+  }, [name, tagline, description, category, customCategory, status, logoUrl, coverImageUrl, bannerColorIndex, website, github, twitter, docs, teamMembers, tokenTicker, contractAddress, techStack, tags, auditStatus, auditorName, securityLevel, pqcSafe, builderId, coverImagePositionY, logoScale]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !tagline.trim() || !description.trim()) return;
+    if (category === 'Other' && !customCategory.trim()) return;
 
     onSubmit(previewProject);
     setSubmissionSuccess(true);
@@ -219,7 +221,10 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                   className="select-control"
                   style={{ width: '100%', height: '40px', padding: '0 10px' }}
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as Project['category'])}
+                  onChange={(e) => {
+                    setCategory(e.target.value as Project['category']);
+                    if (e.target.value !== 'Other') setCustomCategory('');
+                  }}
                 >
                   <option value="DeFi">DeFi</option>
                   <option value="NFT">NFT</option>
@@ -228,7 +233,20 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                   <option value="Tooling">Tooling</option>
                   <option value="Social">Social</option>
                   <option value="RWA">RWA</option>
+                  <option value="Other">Other</option>
                 </select>
+                {category === 'Other' && (
+                  <input
+                    type="text"
+                    className="form-input"
+                    style={{ marginTop: '8px' }}
+                    placeholder="Name your category (e.g. Privacy, DePIN, AI...)"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    maxLength={32}
+                    required
+                  />
+                )}
               </div>
 
               <div className="form-group">
@@ -254,7 +272,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                 <label className="form-label">PROJECT_LOGO (ICON)</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
-                    type="url"
+                    type="text"
                     className="form-input"
                     placeholder="e.g. /uploads/logo.png or external URL"
                     value={logoUrl}
@@ -285,7 +303,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                 <label className="form-label">PROJECT_THUMBNAIL (COVER IMAGE)</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
-                    type="url"
+                    type="text"
                     className="form-input"
                     placeholder="e.g. /uploads/image.png or external URL"
                     value={coverImageUrl}
@@ -487,7 +505,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
               <div className="form-group">
                 <label className="form-label">LIVE_GATEWAY_URL</label>
                 <input
-                  type="url"
+                  type="text"
                   className="form-input"
                   placeholder="https://my-dapp.tech"
                   value={website}
@@ -498,7 +516,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
               <div className="form-group">
                 <label className="form-label">GITHUB_REPOSITORY</label>
                 <input
-                  type="url"
+                  type="text"
                   className="form-input"
                   placeholder="https://github.com/org/repo"
                   value={github}
@@ -511,7 +529,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
               <div className="form-group">
                 <label className="form-label">TWITTER_X_STREAM</label>
                 <input
-                  type="url"
+                  type="text"
                   className="form-input"
                   placeholder="https://x.com/my_project"
                   value={twitter}
@@ -522,7 +540,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
               <div className="form-group">
                 <label className="form-label">DOCUMENTATION_PORTAL</label>
                 <input
-                  type="url"
+                  type="text"
                   className="form-input"
                   placeholder="https://docs.my-dapp.tech"
                   value={docs}
@@ -687,7 +705,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                         style={{ 
                           width: '100%', 
                           height: '100%', 
-                          objectFit: 'cover',
+                          objectFit: 'contain',
                           transform: `scale(${logoScale / 100})`,
                           transition: 'transform 0.1s ease-out'
                         }} 

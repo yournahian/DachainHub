@@ -3,7 +3,7 @@ export interface Project {
   name: string;
   tagline: string;
   description: string;
-  category: 'DeFi' | 'NFT' | 'GameFi' | 'Infrastructure' | 'Tooling' | 'Social' | 'RWA';
+  category: 'DeFi' | 'NFT' | 'GameFi' | 'Infrastructure' | 'Tooling' | 'Social' | 'RWA' | 'Other';
   status: 'Live' | 'Beta' | 'Testnet' | 'Concept';
   logoUrl: string;
   bannerColor: string;

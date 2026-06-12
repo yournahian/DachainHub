@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowUp, Globe, Github, Twitter, BookOpen, User, Star, Shield, Clipboard, ClipboardCheck, Trash2, Eye, ThumbsUp } from 'lucide-react';
 import { Project, Comment, Builder } from '../types';
 import { parseMarkdown } from '../utils/markdown';
-import { getCommentsForProject, addComment, getUpvotedProjects, toggleUpvote } from '../utils/storage';
+import { getCommentsForProject, addComment, getUpvotedProjects, toggleUpvote, deleteComment, getBuilderById } from '../utils/storage';
 
 interface ProjectDetailProps {
   project: Project;
@@ -30,26 +30,21 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
   // Load comments, upvote status, and builder details
   useEffect(() => {
-    setComments(getCommentsForProject(project.id));
-    const upvotedList = getUpvotedProjects();
-    setHasUpvoted(upvotedList.includes(project.id));
+    const loadDetails = async () => {
+      try {
+        const comms = await getCommentsForProject(project.id);
+        setComments(comms);
+        
+        const upvotedList = getUpvotedProjects();
+        setHasUpvoted(upvotedList.includes(project.id));
 
-    if (typeof window !== 'undefined') {
-      const registeredBuildersStr = localStorage.getItem('dac_registered_builders');
-      if (registeredBuildersStr) {
-        try {
-          const builders = JSON.parse(registeredBuildersStr) as Builder[];
-          const found = builders.find(b => b.id === project.builderId);
-          if (found) {
-            setProjectBuilder(found);
-          } else {
-            setProjectBuilder(null);
-          }
-        } catch {
-          setProjectBuilder(null);
-        }
+        const builderInfo = await getBuilderById(project.builderId);
+        setProjectBuilder(builderInfo);
+      } catch (err) {
+        console.error('Failed to load project detail assets:', err);
       }
-    }
+    };
+    loadDetails();
   }, [project.id, project.builderId]);
 
   const handleCopyContract = () => {
@@ -60,9 +55,9 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
     }
   };
 
-  const handleUpvoteClick = (e: React.MouseEvent) => {
+  const handleUpvoteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const result = toggleUpvote(project.id);
+    const result = await toggleUpvote(project.id);
     if (result.success) {
       setUpvotes(result.upvotes);
       setHasUpvoted(result.upvoted);
@@ -70,14 +65,15 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
     }
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
-    addComment(project.id, authorName.trim(), commentText.trim(), rating);
+    await addComment(project.id, authorName.trim(), commentText.trim(), rating);
     
     // Refresh comments list
-    setComments(getCommentsForProject(project.id));
+    const comms = await getCommentsForProject(project.id);
+    setComments(comms);
     
     // Clear form
     setAuthorName('');
@@ -85,7 +81,8 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
     setRating(5);
   };
 
-  const handleCommentDeleteClick = (commentId: string) => {
+  const handleCommentDeleteClick = async (commentId: string) => {
+    await deleteComment(commentId);
     onDeleteComment(commentId);
     setComments(prev => prev.filter(c => c.id !== commentId));
   };

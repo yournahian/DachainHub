@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '../components/Header';
 import { Hero } from '../components/Hero';
 import { ProjectGrid } from '../components/ProjectGrid';
-import { ProjectDetail } from '../components/ProjectDetail';
 import { ProjectSubmit } from '../components/ProjectSubmit';
 import { BuilderProfile } from '../components/BuilderProfile';
 import { AdminDashboard } from '../components/AdminDashboard';
 import { Footer } from '../components/Footer';
+import { BuildersList } from '../components/BuildersList';
 
 import { Project, SystemStats, Builder } from '../types';
-import { getProjects, getUpvotedProjects, getSystemStats, addProject, isAdminLoggedIn, logoutAdmin, toggleUpvote, incrementViews } from '../utils/storage';
+import { getProjects, getUpvotedProjects, getSystemStats, addProject, isAdminLoggedIn, logoutAdmin, toggleUpvote, incrementViews, saveBuilderProfile } from '../utils/storage';
 
 export default function Home() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [currentView, setCurrentView] = useState<string>('explore');
   const [projects, setProjects] = useState<Project[]>([]);
@@ -34,24 +36,56 @@ export default function Home() {
     document.documentElement.setAttribute('data-theme', initialTheme);
 
     // 2. Fetch Initial State
-    setProjects(getProjects());
-    setUpvotedIds(getUpvotedProjects());
-    setStats(getSystemStats());
+    const fetchInitialState = async () => {
+      try {
+        const projs = await getProjects();
+        setProjects(projs);
+        setUpvotedIds(getUpvotedProjects());
+        const systemStats = await getSystemStats();
+        setStats(systemStats);
+      } catch (err) {
+        console.error('Failed to load initial showcase data:', err);
+      }
+    };
+    fetchInitialState();
     setIsAdmin(isAdminLoggedIn());
 
     // 3. Fetch verified builder session from server (OAuth cookie)
     fetch('/api/auth/session')
       .then((r) => r.json())
-      .then((data) => setCurrentBuilder(data.builder || null))
+      .then(async (data) => {
+        if (data.builder) {
+          setCurrentBuilder(data.builder);
+          await saveBuilderProfile(data.builder);
+        } else {
+          setCurrentBuilder(null);
+        }
+      })
       .catch(() => setCurrentBuilder(null));
 
-    // 4. Handle OAuth return — /builder page redirects here with ?view=builder
+    // 4. Handle OAuth/secret redirects and refresh state
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('view') === 'builder') {
-      setCurrentView('builder');
-      // Clean the URL params without a page reload
-      window.history.replaceState({}, '', '/');
+    const viewParam = urlParams.get('view');
+    if (viewParam) {
+      setCurrentView(viewParam);
+      // Clean up oauth redirect params but keep view in the URL
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.search = `?view=${viewParam}`;
+      window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search);
+    } else {
+      setCurrentView('explore');
     }
+
+    // 5. Add popstate listener for back/forward navigation
+    const handlePopState = () => {
+      const currentUrlParams = new URLSearchParams(window.location.search);
+      const view = currentUrlParams.get('view') || 'explore';
+      setCurrentView(view);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   // Sync theme updates to HTML root attribute
@@ -63,10 +97,16 @@ export default function Home() {
   };
 
   // Re-fetch project arrays and metrics from storage
-  const refreshProjectData = () => {
-    setProjects(getProjects());
-    setUpvotedIds(getUpvotedProjects());
-    setStats(getSystemStats());
+  const refreshProjectData = async () => {
+    try {
+      const projs = await getProjects();
+      setProjects(projs);
+      setUpvotedIds(getUpvotedProjects());
+      const systemStats = await getSystemStats();
+      setStats(systemStats);
+    } catch (err) {
+      console.error('Failed to refresh project data:', err);
+    }
     // Re-sync builder from server session
     fetch('/api/auth/session')
       .then((r) => r.json())
@@ -74,42 +114,54 @@ export default function Home() {
       .catch(() => setCurrentBuilder(null));
   };
 
-  const refreshAdminStatus = () => {
+  const refreshAdminStatus = async () => {
     setIsAdmin(isAdminLoggedIn());
-    setStats(getSystemStats());
+    try {
+      const systemStats = await getSystemStats();
+      setStats(systemStats);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleAdminLogout = () => {
     logoutAdmin();
     setIsAdmin(false);
-    setCurrentView('explore');
+    handleNavigate('explore');
   };
 
-  const handleProjectSubmit = (newProjectData: Omit<Project, 'id' | 'upvotes' | 'createdAt' | 'isFeatured' | 'isApproved'>) => {
-    addProject(newProjectData);
-    refreshProjectData();
+  const handleProjectSubmit = async (newProjectData: Omit<Project, 'id' | 'upvotes' | 'createdAt' | 'isFeatured' | 'isApproved'>) => {
+    if (currentBuilder) {
+      await saveBuilderProfile(currentBuilder);
+    }
+    await addProject(newProjectData);
+    await refreshProjectData();
   };
 
   // Handles upvotes click directly in the grid
-  const handleUpvoteProject = (projectId: string, e: React.MouseEvent) => {
+  const handleUpvoteProject = async (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleUpvote(projectId);
-    refreshProjectData();
+    await toggleUpvote(projectId);
+    await refreshProjectData();
   };
 
-  // Navigation controller with page resetting
-  const handleNavigate = (view: string) => {
+  // Navigation controller with page resetting and URL tracking
+  const handleNavigate = async (view: string) => {
     setCurrentView(view);
     // Smooth scroll to top when changing views
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    if (view.startsWith('project_')) {
-      const id = view.split('project_')[1];
-      incrementViews(id);
+    // Update the URL to reflect the current view
+    const url = new URL(window.location.href);
+    if (view === 'explore') {
+      url.searchParams.delete('view');
+    } else {
+      url.searchParams.set('view', view);
     }
+    window.history.pushState({ view }, '', url.pathname + url.search);
     
     // Sync state in case admin or upvote changed
-    refreshProjectData();
+    await refreshProjectData();
     setIsAdmin(isAdminLoggedIn());
   };
 
@@ -133,11 +185,6 @@ export default function Home() {
       </div>
     );
   }
-
-  // Resolve detail views
-  const isDetailView = currentView.startsWith('project_');
-  const activeDetailProjectId = isDetailView ? currentView.split('project_')[1] : null;
-  const activeProject = activeDetailProjectId ? projects.find((p) => p.id === activeDetailProjectId) : null;
 
   return (
     <div className="app-container">
@@ -163,30 +210,10 @@ export default function Home() {
         {currentView === 'explore' && (
           <ProjectGrid
             projects={projects}
-            onSelectProject={(id) => handleNavigate(`project_${id}`)}
+            onSelectProject={(id) => router.push(`/project/${id}`)}
             onUpvoteProject={handleUpvoteProject}
             upvotedIds={upvotedIds}
           />
-        )}
-
-        {isDetailView && activeProject && (
-          <ProjectDetail
-            project={activeProject}
-            onBack={() => handleNavigate('explore')}
-            onRefreshProjectList={refreshProjectData}
-            isAdmin={isAdmin}
-            onDeleteComment={() => setStats(getSystemStats())}
-          />
-        )}
-
-        {isDetailView && !activeProject && (
-          <div className="terminal-console" style={{ textAlign: 'center', marginTop: '40px', padding: '30px' }}>
-            <span className="terminal-accent">[ERR] PROJECT_ADDRESS_NOT_FOUND</span>
-            <p style={{ marginTop: '8px', fontSize: '13px' }}>The contract record was purged or does not exist.</p>
-            <button className="btn-primary" style={{ marginTop: '16px' }} onClick={() => handleNavigate('explore')}>
-              RETURN_HOME
-            </button>
-          </div>
         )}
 
         {currentView === 'submit' && (
@@ -215,7 +242,7 @@ export default function Home() {
           <BuilderProfile
             onNavigate={handleNavigate}
             onRefreshProjectList={refreshProjectData}
-            onSelectProject={(id) => handleNavigate(`project_${id}`)}
+            onSelectProject={(id) => router.push(`/project/${id}`)}
           />
         )}
 
@@ -223,9 +250,13 @@ export default function Home() {
           <AdminDashboard
             onRefreshProjectList={refreshProjectData}
             stats={stats}
-            onLogoutAdmin={() => setIsAdmin(false)}
+            onLogoutAdmin={handleAdminLogout}
             onRefreshStats={refreshAdminStatus}
           />
+        )}
+
+        {currentView === 'builders' && (
+          <BuildersList projects={projects} />
         )}
       </main>
 
