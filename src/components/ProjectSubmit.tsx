@@ -49,6 +49,13 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const MAX_SIZE = 4.5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setLogoUploadError('File size exceeds the 4.5 MB limit. Please select a smaller image.');
+      e.target.value = ''; // Reset input
+      return;
+    }
+
     setLogoUploading(true);
     setLogoUploadError('');
 
@@ -62,7 +69,8 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       });
 
       if (!res.ok) {
-        throw new Error('Upload failed');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Upload failed');
       }
 
       const data = await res.json();
@@ -71,8 +79,8 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       } else {
         throw new Error('Invalid response structure');
       }
-    } catch (err) {
-      setLogoUploadError('Failed to upload logo.');
+    } catch (err: any) {
+      setLogoUploadError(err.message || 'Failed to upload logo.');
       console.error(err);
     } finally {
       setLogoUploading(false);
@@ -82,6 +90,13 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
   const handleLocalUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const MAX_SIZE = 4.5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setUploadError('File size exceeds the 4.5 MB limit. Please select a smaller image.');
+      e.target.value = ''; // Reset input
+      return;
+    }
 
     setImageUploading(true);
     setUploadError('');
@@ -96,7 +111,8 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       });
 
       if (!res.ok) {
-        throw new Error('Upload failed');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Upload failed');
       }
 
       const data = await res.json();
@@ -105,8 +121,8 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       } else {
         throw new Error('Invalid response structure');
       }
-    } catch (err) {
-      setUploadError('Failed to upload image to local server.');
+    } catch (err: any) {
+      setUploadError(err.message || 'Failed to upload image to local server.');
       console.error(err);
     } finally {
       setImageUploading(false);

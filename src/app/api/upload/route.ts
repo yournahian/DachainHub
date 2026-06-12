@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
         { error: 'File size exceeds the 4.5 MB limit' },
-        { status: 400 }
+        { status: 413 }
       );
     }
 

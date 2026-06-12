@@ -4,6 +4,28 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'DAC Chain Builder Showcase // Quantum-Proof Ecosystem',
   description: 'Tactical coordination registry for next-generation dApps and infrastructure built on the DAC Quantum Blockchain.',
+  openGraph: {
+    title: 'DAC Chain Builder Showcase // Quantum-Proof Ecosystem',
+    description: 'Tactical coordination registry for next-generation dApps and infrastructure built on the DAC Quantum Blockchain.',
+    url: 'https://dachain.tech',
+    siteName: 'DAC Chain Builder Showcase',
+    images: [
+      {
+        url: '/brand/Lookup-DarkMode.svg',
+        width: 1200,
+        height: 630,
+        alt: 'DAC Chain Brand Logo',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DAC Chain Builder Showcase // Quantum-Proof Ecosystem',
+    description: 'Tactical coordination registry for next-generation dApps and infrastructure built on the DAC Quantum Blockchain.',
+    images: ['/brand/Lookup-DarkMode.svg'],
+  },
 };
 
 export default function RootLayout({

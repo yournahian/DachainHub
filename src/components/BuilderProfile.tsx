@@ -36,6 +36,13 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const MAX_SIZE = 4.5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setEditLogoUploadError('File size exceeds the 4.5 MB limit. Please select a smaller image.');
+      e.target.value = ''; // Reset input
+      return;
+    }
+
     setEditLogoUploading(true);
     setEditLogoUploadError('');
 
@@ -49,7 +56,8 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
       });
 
       if (!res.ok) {
-        throw new Error('Upload failed');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Upload failed');
       }
 
       const data = await res.json();
@@ -58,8 +66,8 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
       } else {
         throw new Error('Invalid response structure');
       }
-    } catch (err) {
-      setEditLogoUploadError('Failed to upload logo.');
+    } catch (err: any) {
+      setEditLogoUploadError(err.message || 'Failed to upload logo.');
       console.error(err);
     } finally {
       setEditLogoUploading(false);
@@ -72,6 +80,13 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
   const handleEditLocalUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const MAX_SIZE = 4.5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setEditUploadError('File size exceeds the 4.5 MB limit. Please select a smaller image.');
+      e.target.value = ''; // Reset input
+      return;
+    }
 
     setEditImageUploading(true);
     setEditUploadError('');
@@ -86,7 +101,8 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
       });
 
       if (!res.ok) {
-        throw new Error('Upload failed');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Upload failed');
       }
 
       const data = await res.json();
@@ -95,8 +111,8 @@ export const BuilderProfile: React.FC<BuilderProfileProps> = ({
       } else {
         throw new Error('Invalid response structure');
       }
-    } catch (err) {
-      setEditUploadError('Failed to upload image to local server.');
+    } catch (err: any) {
+      setEditUploadError(err.message || 'Failed to upload image to local server.');
       console.error(err);
     } finally {
       setEditImageUploading(false);

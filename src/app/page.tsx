@@ -14,6 +14,18 @@ import { BuildersList } from '../components/BuildersList';
 import { Project, SystemStats, Builder } from '../types';
 import { getProjects, getUpvotedProjects, getSystemStats, addProject, isAdminLoggedIn, logoutAdmin, toggleUpvote, incrementViews, saveBuilderProfile } from '../utils/storage';
 
+const slugify = (text: string): string => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
 export default function Home() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -210,7 +222,11 @@ export default function Home() {
         {currentView === 'explore' && (
           <ProjectGrid
             projects={projects}
-            onSelectProject={(id) => router.push(`/project/${id}`)}
+            onSelectProject={(id) => {
+              const proj = projects.find(p => p.id === id);
+              const slug = proj ? slugify(proj.name) : '';
+              router.push(`/project/${id}${slug ? '-' + slug : ''}`);
+            }}
             onUpvoteProject={handleUpvoteProject}
             upvotedIds={upvotedIds}
           />
@@ -242,7 +258,11 @@ export default function Home() {
           <BuilderProfile
             onNavigate={handleNavigate}
             onRefreshProjectList={refreshProjectData}
-            onSelectProject={(id) => router.push(`/project/${id}`)}
+            onSelectProject={(id) => {
+              const proj = projects.find(p => p.id === id);
+              const slug = proj ? slugify(proj.name) : '';
+              router.push(`/project/${id}${slug ? '-' + slug : ''}`);
+            }}
           />
         )}
 
