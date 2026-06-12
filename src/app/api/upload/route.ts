@@ -28,6 +28,15 @@ export async function POST(request: NextRequest) {
 
     // Fallback to local uploads if token is not configured or is the default placeholder (e.g., local development)
     if (!process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN === 'vercel_blob_rw_...') {
+      // Prevent local filesystem writes on Vercel (read-only serverless environment)
+      const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+      if (isVercel) {
+        return NextResponse.json(
+          { error: 'Vercel Blob storage is not connected to this live deployment. Please link a Blob store in your Vercel project dashboard.' },
+          { status: 500 }
+        );
+      }
+
       console.log('[Upload Fallback] BLOB_READ_WRITE_TOKEN is missing or placeholder. Saving file locally...');
       
       const bytes = await file.arrayBuffer();
