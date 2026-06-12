@@ -151,9 +151,11 @@ export const seedSupabaseDefaults = async (): Promise<void> => {
       }
 
       console.log('[Supabase] Seeding default projects...');
+      // Omit githubStars since the column does not exist in the Supabase schema
+      const sanitizedProjects = INITIAL_PROJECTS.map(({ githubStars, ...p }: any) => p);
       const { error: projectErr } = await sb()
         .from('projects')
-        .insert(INITIAL_PROJECTS);
+        .insert(sanitizedProjects);
       if (projectErr) {
         console.error('[Supabase] Project seeding failed:', projectErr);
       }
@@ -249,9 +251,11 @@ export const getProjects = async (): Promise<Project[]> => {
 
 export const saveProjects = async (projects: Project[]): Promise<void> => {
   if (isSupabaseActive()) {
+    // Omit githubStars since the column does not exist in the Supabase schema
+    const sanitized = projects.map(({ githubStars, ...p }: any) => p);
     const { error } = await sb()
       .from('projects')
-      .upsert(projects);
+      .upsert(sanitized);
     if (error) {
       console.error('[Supabase] Error saving projects:', error);
     }
@@ -273,11 +277,14 @@ export const addProject = async (
   };
 
   if (isSupabaseActive()) {
+    // Omit githubStars since the column does not exist in the Supabase schema
+    const { githubStars, ...payload } = newProject as any;
     const { error } = await sb()
       .from('projects')
-      .insert(newProject);
+      .insert(payload);
     if (error) {
       console.error('[Supabase] Error adding project:', error);
+      throw new Error(error.message || JSON.stringify(error));
     }
     return newProject;
   }
@@ -290,9 +297,11 @@ export const addProject = async (
 
 export const updateProject = async (project: Project): Promise<void> => {
   if (isSupabaseActive()) {
+    // Omit githubStars since the column does not exist in the Supabase schema
+    const { githubStars, ...payload } = project as any;
     const { error } = await sb()
       .from('projects')
-      .update(project)
+      .update(payload)
       .eq('id', project.id);
     if (error) {
       console.error('[Supabase] Error updating project:', error);
@@ -552,6 +561,7 @@ export const saveBuilderProfile = async (builder: Builder): Promise<void> => {
       .upsert(builder);
     if (error) {
       console.error('[Supabase] Error saving builder profile:', error);
+      throw new Error(error.message || JSON.stringify(error));
     }
     return;
   }

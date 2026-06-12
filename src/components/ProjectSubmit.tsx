@@ -4,7 +4,7 @@ import { Project } from '../types';
 import { parseMarkdown } from '../utils/markdown';
 
 interface ProjectSubmitProps {
-  onSubmit: (projectData: Omit<Project, 'id' | 'upvotes' | 'createdAt' | 'isFeatured' | 'isApproved'>) => void;
+  onSubmit: (projectData: Omit<Project, 'id' | 'upvotes' | 'createdAt' | 'isFeatured' | 'isApproved'>) => Promise<void> | void;
   onNavigate: (view: string) => void;
   builderId: string;
 }
@@ -44,6 +44,8 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
   const [uploadError, setUploadError] = useState('');
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoUploadError, setLogoUploadError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -172,17 +174,26 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
     };
   }, [name, tagline, description, category, customCategory, status, logoUrl, coverImageUrl, bannerColorIndex, website, github, twitter, docs, teamMembers, tokenTicker, contractAddress, techStack, tags, auditStatus, auditorName, securityLevel, pqcSafe, builderId, coverImagePositionY, logoScale]);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !tagline.trim() || !description.trim()) return;
     if (category === 'Other' && !customCategory.trim()) return;
 
-    onSubmit(previewProject);
-    setSubmissionSuccess(true);
-    setTimeout(() => {
-      setSubmissionSuccess(false);
-      onNavigate('builder'); // Redirect to builder panel
-    }, 2000);
+    setIsSubmitting(true);
+    setSubmitError('');
+    try {
+      await onSubmit(previewProject);
+      setSubmissionSuccess(true);
+      setTimeout(() => {
+        setSubmissionSuccess(false);
+        onNavigate('builder'); // Redirect to builder panel
+      }, 2000);
+    } catch (err: any) {
+      console.error('Submission failed:', err);
+      setSubmitError(err.message || 'Failed to submit project. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -576,9 +587,31 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
               />
             </div>
 
-            <button type="submit" className="btn-primary" style={{ marginTop: '12px' }}>
-              <Plus size={16} /> TRANSMIT_REGISTRY_RECORD
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              style={{ marginTop: '12px', opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'TRANSMITTING...' : <><Plus size={16} /> TRANSMIT_REGISTRY_RECORD</>}
             </button>
+
+            {submitError && (
+              <div style={{
+                color: 'var(--color-red)',
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid var(--color-red)',
+                padding: '12px',
+                marginTop: '12px',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono)',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                textAlign: 'left'
+              }}>
+                ⚠ ERROR: {submitError}
+              </div>
+            )}
           </form>
 
           {/* Right Side: Sticky live preview panel */}
