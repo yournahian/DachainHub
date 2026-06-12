@@ -10,7 +10,7 @@ interface ProjectGridProps {
   upvotedIds: string[];
 }
 
-type CategoryFilter = 'All' | 'DeFi' | 'NFT' | 'GameFi' | 'Infrastructure' | 'Tooling' | 'Social' | 'RWA' | 'Others';
+type CategoryFilter = 'All' | 'DeFi' | 'NFT' | 'GameFi' | 'Infrastructure' | 'Tooling' | 'Social' | 'RWA' | 'Other';
 type StatusFilter = 'All' | 'Live' | 'Beta' | 'Testnet' | 'Concept';
 type SortOption = 'trending' | 'latest' | 'alpha';
 
@@ -38,11 +38,11 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
         project.description.toLowerCase().includes(searchQuery.toLowerCase());
 
       // 2. Category filter
-      // Mapping categories safely: 'Others' matches any category not in standard categories
+      // Mapping categories safely: 'Other' matches any category not in standard categories
       const standardCategories = ['DeFi', 'NFT', 'GameFi', 'Infrastructure', 'Tooling', 'Social', 'RWA'];
       const matchesCategory = 
         selectedCategory === 'All' || 
-        (selectedCategory === 'Others' && !standardCategories.includes(project.category)) ||
+        (selectedCategory === 'Other' && !standardCategories.includes(project.category)) ||
         project.category === selectedCategory;
 
       // 3. Status filter
@@ -70,7 +70,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
     return filtered;
   }, [projects, searchQuery, selectedCategory, selectedStatus, sortBy]);
 
-  const categories: CategoryFilter[] = ['All', 'DeFi', 'NFT', 'GameFi', 'Infrastructure', 'Tooling', 'Social', 'RWA', 'Others'];
+  const categories: CategoryFilter[] = ['All', 'DeFi', 'NFT', 'GameFi', 'Infrastructure', 'Tooling', 'Social', 'RWA', 'Other'];
   const statuses: StatusFilter[] = ['All', 'Live', 'Beta', 'Testnet', 'Concept'];
 
   return (

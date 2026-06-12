@@ -144,7 +144,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
       name: name || 'DAC Swap Engine',
       tagline: tagline || 'Next-gen atomic swapper for quantum-resistant dApps.',
       description: description || '### Feature Set\n- Multi-hop liquidity router\n- Zero-knowledge fee claims\n\nSubmit this form to populate details.',
-      category: (category === 'Others' && customCategory.trim() ? customCategory.trim() : category) as Project['category'],
+      category: (category === 'Other' && customCategory.trim() ? customCategory.trim() : category) as Project['category'],
       status,
       logoUrl: logoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${name || 'DAC'}`,
       bannerColor: bannerGradients[bannerColorIndex],
@@ -175,7 +175,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !tagline.trim() || !description.trim()) return;
-    if (category === 'Others' && !customCategory.trim()) return;
+    if (category === 'Other' && !customCategory.trim()) return;
 
     onSubmit(previewProject);
     setSubmissionSuccess(true);
@@ -207,7 +207,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
             <div className="form-section-title">CORE_IDENTIFICATION</div>
             
             <div className="form-group">
-              <label className="form-label">APPLICATION_NAME *</label>
+              <label className="form-label">Project Name *</label>
               <input
                 type="text"
                 className="form-input"
@@ -239,7 +239,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                   value={category}
                   onChange={(e) => {
                     setCategory(e.target.value as Project['category']);
-                    if (e.target.value !== 'Others') setCustomCategory('');
+                    if (e.target.value !== 'Other') setCustomCategory('');
                   }}
                 >
                   <option value="DeFi">DeFi</option>
@@ -249,9 +249,9 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
                   <option value="Tooling">Tooling</option>
                   <option value="Social">Social</option>
                   <option value="RWA">RWA</option>
-                  <option value="Others">Others</option>
+                  <option value="Other">Other</option>
                 </select>
-                {category === 'Others' && (
+                {category === 'Other' && (
                   <input
                     type="text"
                     className="form-input"
@@ -543,7 +543,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
 
             <div className="form-row-double">
               <div className="form-group">
-                <label className="form-label">TWITTER_X_STREAM</label>
+                <label className="form-label">X Link of Project</label>
                 <input
                   type="text"
                   className="form-input"

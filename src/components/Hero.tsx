@@ -8,24 +8,25 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   
-  // Simulated Live Network Event Logging
+  // Simulated Ecosystem Process Logging
   useEffect(() => {
     const logPool = [
-      "ESTABLISHING_VPN_TUNNEL // PORT_8080...",
-      "SYNCING_WITH_LATTICE_CRYPTOGRAPHY... OK",
-      "AUDITING_VALIDATOR_STAKES // DACT_BALANCE_CHECK...",
-      "BLOCK_VERIFICATION // HASH: 0x9a8f...4e12 // HEIGHT: #1409",
-      "SUPERVISOR_CONSENSUS_REACHED // 99.8% CONFIDENCE",
-      "DECRYPTING_SECURE_PAYMENTS // DACC_FEES: 0.12",
-      "COMPILING_QUANTUM_PROOF_METADATA... OK",
-      "ACTIVE_BUILDERS_REGISTERED // BROADCAST: SUCCESS",
-      "REFRESHING_SHOWCASE_PROJECTS_CACHE... OK",
+      "NEW_BUILDER_NODE_ONBOARDING // HANDLE: @AlistairV...",
+      "BUILDER_PROFILE_SYNCED // SOCIALS: OK",
+      "INITIATING_DAPP_UPLOAD // NAME: Q-Chat Secure...",
+      "VERIFYING_POST_QUANTUM_CRYPTO_STATUS... OK",
+      "SMART_CONTRACT_VERIFIED // ADDR: 0x9a8f...4e12",
+      "UPLOADING_COVER_IMAGE_TO_BLOB // SIZE: 2.1MB // SUCCESS",
+      "SUBMISSION_MODERATOR_APPROVAL_PENDING // ID: 1409",
+      "PROJECT_UPLOADED_TO_REGISTRY // LEDGER: RECORDED",
+      "UPVOTE_REGISTERED_ON_CHAIN // HEIGHT: #1411",
+      "BUILDER_PASSING_MODERATION_STAGE... SUCCESS",
     ];
 
     setTerminalLogs([
-      "INITIALIZING_DAC_CORE_MONITOR...",
-      "CONNECTING_TO_SUPERVISOR_NET... SUCCESS",
-      "LISTENING_FOR_ECOSYSTEM_EVENTS..."
+      "INITIALIZING_BUILDER_ONBOARDING_NODE...",
+      "SYNCING_REGISTRY_CATALOG... SUCCESS",
+      "LISTENING_FOR_PROJECT_UPLOADS..."
     ]);
 
     const interval = setInterval(() => {
@@ -75,7 +76,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
       <div className="hero-right">
         <div className="terminal-console">
           <div className="terminal-header">
-            <span className="terminal-title">LIVE NET MONITOR</span>
+            <span className="terminal-title">PROCESS_MONITOR</span>
             <div className="terminal-dot"></div>
           </div>
           <div className="terminal-content">
