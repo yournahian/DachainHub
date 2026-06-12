@@ -1907,3 +1907,126 @@ main {
   }
 }
 
+/* ==========================================
+   MOBILE RESPONSIVENESS OVERRIDES
+   ========================================== */
+
+/* 1. Global word wrapping for long uppercase/snake_case titles */
+h1, h2, h3, h4, h5, h6, .brand-text {
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* 2. Header and Navigation improvements on small viewports */
+@media (max-width: 768px) {
+  .nav-links {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px 12px !important;
+  }
+  .nav-item {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-inner {
+    padding: 12px 8px !important;
+  }
+  .brand {
+    gap: 8px !important;
+  }
+  .brand-logo {
+    height: 48px !important;
+  }
+  .brand-text {
+    font-size: 16px !important;
+  }
+  .nav-links {
+    gap: 6px 10px !important;
+  }
+  .nav-item {
+    font-size: 11px !important;
+  }
+}
+
+/* 3. Stacking for utility flex-between columns */
+@media (max-width: 600px) {
+  .flex-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .flex-between > button, .flex-between > a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* Make inline title text smaller on mobile to avoid overflow */
+  .admin-dashboard-container h2, 
+  .builder-hub-panel h2, 
+  .detail-view-container h2,
+  .builder-hub-panel h3 {
+    font-size: 18px !important;
+  }
+}
+
+/* 4. Table and Workspace Panel Width constraints */
+.builder-hub-panel, .admin-dashboard-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.admin-table-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* 5. Submit Form Grid & Sticky Preview adjustments */
+@media (max-width: 900px) {
+  .submit-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .preview-sticky-panel {
+    position: static !important;
+    width: 100% !important;
+  }
+}
+
+/* 6. Admin stats card grid adjustment for narrow screens */
+@media (max-width: 480px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .admin-stat-card {
+    padding: 16px !important;
+  }
+  .login-panel {
+    width: calc(100% - 24px) !important;
+    margin: 40px auto !important;
+    padding: 20px !important;
+  }
+}
+
+/* 7. Hero adjustments */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 32px !important;
+  }
+  .hero-buttons {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .hero-buttons > button, .hero-buttons > a {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+

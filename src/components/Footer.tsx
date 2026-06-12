@@ -7,11 +7,11 @@ export const Footer: React.FC = () => {
         {/* Brand Description */}
         <div className="footer-brand">
           <div className="brand" style={{ marginBottom: '8px' }}>
-            <svg className="brand-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ height: '24px' }}>
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#e25836" />
-              <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="#8da5c4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="brand-text" style={{ color: '#fbfbe7', fontSize: '16px' }}>DAC_LABS</span>
+            <img 
+              src="/brand/Lookup-DarkMode.svg" 
+              alt="DACHAIN HUB" 
+              style={{ height: '48px', width: 'auto', display: 'block' }}
+            />
           </div>
           <span className="footer-subtitle">Unbreakable Blockchain, Quantum-Proof</span>
           <p style={{ fontSize: '11px', lineHeight: '1.6', marginTop: '10px', color: 'rgba(251, 251, 231, 0.4)' }}>
