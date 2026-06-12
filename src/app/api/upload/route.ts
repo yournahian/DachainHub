@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fallback to local uploads if token is not configured (e.g., local development)
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.log('[Upload Fallback] BLOB_READ_WRITE_TOKEN is missing. Saving file locally...');
+    // Fallback to local uploads if token is not configured or is the default placeholder (e.g., local development)
+    if (!process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN === 'vercel_blob_rw_...') {
+      console.log('[Upload Fallback] BLOB_READ_WRITE_TOKEN is missing or placeholder. Saving file locally...');
       
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
