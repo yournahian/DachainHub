@@ -1,4 +1,4 @@
-# DachainHub // Post-Quantum dApp Portal
+# DachainHub
 
 An ecosystem directory, verified builder workspace, and moderation dashboard for next-generation decentralized applications built on the **DAC Quantum Blockchain**. Built with Next.js 14, Supabase, Vercel Blob, and modern Vanilla CSS.
 
