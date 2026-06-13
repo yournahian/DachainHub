@@ -32,7 +32,7 @@ export default function ProjectPage() {
   // Dynamic SEO & OpenGraph metadata update
   useEffect(() => {
     if (project) {
-      document.title = `${project.name} | DAC Chain Builder Showcase`;
+      document.title = `${project.name} | DachainHub`;
       
       // Update meta description
       let metaDescription = document.querySelector('meta[name="description"]');

@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'DAC Chain Builder Showcase // Quantum-Proof Ecosystem',
+  title: 'DachainHub // Quantum-Proof Ecosystem',
   description: 'Tactical coordination registry for next-generation dApps and infrastructure built on the DAC Quantum Blockchain.',
   openGraph: {
-    title: 'DAC Chain Builder Showcase // Quantum-Proof Ecosystem',
+    title: 'DachainHub // Quantum-Proof Ecosystem',
     description: 'Tactical coordination registry for next-generation dApps and infrastructure built on the DAC Quantum Blockchain.',
     url: 'https://dachain.tech',
-    siteName: 'DAC Chain Builder Showcase',
+    siteName: 'DachainHub',
     images: [
       {
         url: '/brand/Lookup-DarkMode.svg',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DAC Chain Builder Showcase // Quantum-Proof Ecosystem',
+    title: 'DachainHub // Quantum-Proof Ecosystem',
     description: 'Tactical coordination registry for next-generation dApps and infrastructure built on the DAC Quantum Blockchain.',
     images: ['/brand/Lookup-DarkMode.svg'],
   },

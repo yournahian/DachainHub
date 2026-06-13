@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
       {/* Copyright Bottom row */}
       <div className="footer-bottom">
         <span>© DAC LABS 2024-2026. ALL RIGHTS RESERVED.</span>
-        <span>REF: QM-SHOWCASE-V1.0.4 // REGION: GLOBAL_NET</span>
+        <span>REF: QM-DACHAINHUB-V1.0.4 // REGION: GLOBAL_NET</span>
       </div>
     </footer>
   );

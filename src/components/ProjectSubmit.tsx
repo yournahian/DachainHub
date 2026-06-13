@@ -199,7 +199,7 @@ export const ProjectSubmit: React.FC<ProjectSubmitProps> = ({ onSubmit, onNaviga
   return (
     <div className="detail-view-container">
       <h2 style={{ marginBottom: '24px', fontSize: '28px', color: 'var(--text-primary)' }}>
-        SUBMIT_DAPP_TO_REGISTRY
+        SUBMIT_PROJECT_TO_REGISTRY
       </h2>
 
       {submissionSuccess ? (

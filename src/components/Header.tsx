@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`nav-item ${currentView === 'submit' ? 'active' : ''}`}
             onClick={() => onNavigate('submit')}
           >
-            SUBMIT_DAPP
+            SUBMIT_PROJECT
           </span>
           <span 
             className={`nav-item ${currentView === 'builder' ? 'active' : ''}`}

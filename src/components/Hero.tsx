@@ -53,7 +53,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
           DAC_QUANTUM_BLOCKCHAIN
         </span>
         <h2 className="hero-title">
-          BUILDER SHOWCASE<br />
+          DACHAINHUB<br />
           <span>Ecosystem Registry</span>
         </h2>
         <p className="hero-description">
